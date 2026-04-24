@@ -29,7 +29,7 @@ class LogFeatureInut(BaseModel):
     )
 
     is_error: int = Field(
-        description="Binary flag: 1 if status is 4xx/5xx, else 0."
+        description="Binary flag: 1 if status is 4xx/5xx, else 0.",
         ge=0,
         le=1
     )
