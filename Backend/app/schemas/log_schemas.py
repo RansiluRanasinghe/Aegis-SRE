@@ -33,3 +33,14 @@ class LogFeatureInut(BaseModel):
         ge=0,
         le=1
     )
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "bytes" : 5667.0,
+                "status" : 200,
+                "hour" :13,
+                "ip_freq" : 78,
+                "is_error" : 0
+            }
+        }
