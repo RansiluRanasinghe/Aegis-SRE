@@ -44,3 +44,9 @@ class LogFeatureInut(BaseModel):
                 "is_error" : 0
             }
         }
+
+class AnomalyResonse(BaseModel):
+
+    is_anomaly: bool
+    confidence_score: float
+    message: str        
