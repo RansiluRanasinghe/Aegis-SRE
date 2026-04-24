@@ -39,5 +39,7 @@ class AegisMlService:
         return {
             "is_anomaly" : is_anomaly,
             "confidence_score" : float(score)
-        }        
-        
+        }
+
+
+ml_engine = AegisMlService()           
