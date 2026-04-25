@@ -1,7 +1,7 @@
 import joblib
 import pandas as pd
 import os
-import pathlib as Path
+from pathlib import Path
 
 class AegisMlService:
     def __init__(self):
