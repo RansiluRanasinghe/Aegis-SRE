@@ -1,6 +1,6 @@
 ip,time,method,url,status,bytes
 46.224.89.237,22/Jan/2019:14:11:45 +0330,GET,/image/9814/productModel/100x100,200,2779
-2.181.160.157,22/Jan/2019:14:11:45 +0330,GET,/image/53/productTypeMenu,200,11
+2.181.160.157,22/Jan/2019:14:11:45 +0330,GET,/image/53/productTypeMenu,500,9999999999976
 46.224.89.237,22/Jan/2019:14:11:45 +0330,GET,/image/5947/productModel/100x100,200,2527
 46.224.89.237,22/Jan/2019:14:11:45 +0330,GET,/image/9820/productModel/100x100,200,2619
 46.224.89.237,22/Jan/2019:14:11:45 +0330,GET,/image/6006/productModel/100x100,200,1905
