@@ -1,0 +1,67 @@
+import pandas as pd
+import requests
+import time
+import sys
+
+API_URL = "http://localhost:8000/api/v1/analyze"
+DATA_PATH = "data/sample_logs.csv"
+
+def simulate():
+
+    print("Loading Data from, ", DATA_PATH)
+
+    try:
+        df = pd.read_csv(DATA_PATH)
+    except FileNotFoundError:
+        print("Error: sample_logs.csv not found in the data/ directory.")
+        sys.exit(1)
+
+    print("Performing on-the-fly Feature Engineering...")
+
+    df["time"] = pd.to_datetime(df["time"], format= "%d/%b/%Y:%H:%M:%S %z", exact=False)
+    df["hour"] = df["time"].dt.hour
+
+    ip_counts = df["ip"].value_counts().to_dict()
+    df["ip_freq"] = df["ip"].map(ip_counts)
+
+    df["is_error"] = df["status"].apply(lambda x: 1 if x >= 400 else 0)
+    df["bytes"] = pd.to_numeric(df["bytes"].replace('-', '0'))   
+
+    print("Firing logs at Aegis-SRE API... (Press Ctrl+C to stop)\n")
+
+    for index, row in df.iterrows():
+
+        payload = {
+            "bytes": float(row['bytes']),
+            "status": int(row['status']),
+            "hour": int(row['hour']),
+            "ip_freq": int(row['ip_freq']),
+            "is_error": int(row['is_error'])
+        }
+
+        try:
+            response = requests.post(API_URL, json=payload)
+
+            if response.status_code != 200:
+                print(f"\n[API ERROR {response.status_code}]")
+                print(f"Payload sent: {payload}")
+                print(f"Backend says: {response.text}")
+                break 
+
+            result = response.json()
+
+            if result.get("is_anomaly"):
+                print(f"[ANOMALY DETECTED] IP: {row['ip']} | Status: {row['status']} | Bytes: {row['bytes']}")
+                print(f"=Score: {result['confidence_score']:.3f} - Waking GenAI Agent...\n")
+                time.sleep(1.5)
+            else:
+               print(f"[NORMAL] Score: {result['confidence_score']:.3f}")
+
+        except requests.exceptions.ConnectionError:
+            print("Error: API is offline. Did you start the Uvicorn server?")
+            break
+
+        time.sleep(0.3)
+
+if __name__ == "__main__":
+    simulate()
