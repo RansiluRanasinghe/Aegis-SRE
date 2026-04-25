@@ -41,4 +41,9 @@ def simulate():
 
         except requests.exceptions.ConnectionError:
             print("❌ Error: API is offline. Did you start the Uvicorn server?")
-            break          
+            break
+
+        time.sleep(0.3)
+
+if __name__ == "__main__":
+    simulate()
