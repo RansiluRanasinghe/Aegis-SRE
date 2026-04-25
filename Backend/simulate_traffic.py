@@ -41,6 +41,13 @@ def simulate():
 
         try:
             response = requests.post(API_URL, json=payload)
+
+            if response.status_code != 200:
+                print(f"\n[API ERROR {response.status_code}]")
+                print(f"Payload sent: {payload}")
+                print(f"Backend says: {response.text}")
+                break 
+
             result = response.json()
 
             if result.get("is_anomaly"):

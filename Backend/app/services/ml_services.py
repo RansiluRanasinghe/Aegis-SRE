@@ -33,7 +33,7 @@ class AegisMlService:
         scaled_data = self.scaler.transform(input_df)
         prediction = self.model.predict(scaled_data)[0]
 
-        score = self.model.predict_proba(scaled_data)[1]
+        score = self.model.decision_function(scaled_data)[0]
         is_anomaly = True if prediction == -1 else False
 
         return {
