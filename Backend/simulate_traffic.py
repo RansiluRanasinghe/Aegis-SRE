@@ -16,6 +16,17 @@ def simulate():
         print("Error: sample_logs.csv not found in the data/ directory.")
         sys.exit(1)
 
+    print("Performing on-the-fly Feature Engineering...")
+
+    df["time"] = pd.to_datetime(df["time"], format= "%d/%b/%Y:%H:%M:%S %z", exact=False)
+    df["hour"] = df["time"].dt.hour
+
+    ip_counts = df["ip"].value_counts().to_dict()
+    df["ip_freq"] = df["ip"].map(ip_counts)
+
+    df["is_error"] = df["status"].apply(lambda x: 1 if x >= 400 else 0)
+    df["bytes"] = pd.to_numeric(df["bytes"].replace('-', '0'))   
+
     print("Firing logs at Aegis-SRE API... (Press Ctrl+C to stop)\n")
 
     for index, row in df.iterrows():
@@ -40,7 +51,7 @@ def simulate():
                print(f"[NORMAL] Score: {result['confidence_score']:.3f}")
 
         except requests.exceptions.ConnectionError:
-            print("❌ Error: API is offline. Did you start the Uvicorn server?")
+            print("Error: API is offline. Did you start the Uvicorn server?")
             break
 
         time.sleep(0.3)
