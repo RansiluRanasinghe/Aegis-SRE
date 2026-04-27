@@ -12,4 +12,4 @@ class Settings:
     LLM_TEMPERATURE: float = 0.1
     LLM_MAX_TOKENS: int = 200
 
-    
+settings = Settings()    
