@@ -44,13 +44,13 @@ class AegisLLMService:
             "stream" : False,
             "options" : {
                 "temperature" : settings.LLM_TEMPERATURE,
-                "max_tokens" : settings.LLM_MAX_TOKENS
+                "num_predict" : settings.LLM_MAX_TOKENS
             }
         }
 
         try:
 
-            response = requests.post(self.api_url, json=payload, timeout=10.0)
+            response = requests.post(self.api_url, json=payload, timeout=45.0)
             response.raise_for_status()
 
             result = response.json()
