@@ -1,15 +1,20 @@
 from fastapi import APIRouter, HTTPException
+from collections import deque
 from app.schemas.log_schemas import LogFeatureInput, AnomalyResonse
 from app.services.ml_services import ml_engine
+from app.services.llm_service import llm_engine
 
 router = APIRouter()
+
+context_buffer = deque(maxlen=10)
 
 @router.get("/health", summary="Health Check", description="Endpoint to check if the API is running.")
 async def health_check():
     return {
         "status" : "online",
         "engine" : "Aegis-SRE Isolation Forest",
-        "ready" : ml_engine.model is not None
+        "llm_engine" : f"{llm_engine.model} configured",
+        "context_buffer_size" : len(context_buffer)
     }
 
 @router.post("/analyze", response_model=AnomalyResonse, summary="Analyze Log Features", description="Endpoint to analyze log features and determine if it's an anomaly.")
