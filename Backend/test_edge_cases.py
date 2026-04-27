@@ -27,3 +27,23 @@ edge_cases = {
         "is_error": 1
     }
 }
+
+print("Initiating Aegis-SRE Edge Case Chaos Testing...\n")
+
+for attack_name, payload in edge_cases.items():
+    print(f"[{attack_name}]")
+    print(f"Payload: {json.dumps(payload)}")
+
+    try:
+
+        response = requests.post(API_URL, json=payload, timeout=60.0)
+        result = response.json()
+
+        print(f"ML Confidence Score: {result['confidence_score']:.3f}")
+        print(f"AI Diagnosis: {result.get('llm_diagnosis', 'No diagnosis generated.')}\n")
+        print("....................................\n")
+
+    except Exception as e:
+        print(f"Error during testing: {str(e)}\n")
+
+    time.sleep(2)  # Pause between tests to simulate real-world conditions        
