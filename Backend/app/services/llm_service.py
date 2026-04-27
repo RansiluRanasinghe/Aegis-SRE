@@ -62,3 +62,5 @@ class AegisLLMService:
             return "DIAGNOSIS FAILED: Cannot connect to Ollama. Ensure Llama 3.2 is running locally on port 11434."
         except Exception as e:
             return f"DIAGNOSIS FAILED: Unexpected GenAI pipeline error: {str(e)}"
+        
+llm_engine = AegisLLMService()        
