@@ -29,14 +29,16 @@ class AegisLLMService:
         Payload Size (Bytes): {anomaly_log['bytes']}
         Requests from this IP: {anomaly_log['ip_freq']}
 
+        [SRE PLAYBOOK (STRICT INSTRUCTIONS)]
+        - IF HIGH FREQUENCY + HIGH BYTES: Diagnose as DDoS/Volumetric Attack. Suggest `iptables -A INPUT -s <IP> -j DROP` or configuring WAF rate-limits. DO NOT suggest diagnostic tools like `nmap`.
+        - IF HIGH FREQUENCY + 401/403 STATUS: Diagnose as Brute Force / Credential Stuffing. Suggest `fail2ban` or blocking the IP.
+        - IF LOW FREQUENCY + MASSIVE BYTES (Status 200): Diagnose as Data Exfiltration. Suggest immediately rotating API keys or killing active sessions.
+
         [TASK]
-        Based purely on the data above:
-        1. Identify the likely technical root cause of this anomaly (e.g., DDoS, memory leak, broken endpoint, scanner bot).
-        2. Suggest one specific, actionable terminal command or engineering step to mitigate it.
+        Based purely on the data above, provide the Root Cause Analysis and mitigation.
 
         [CONSTRAINTS]
-        Keep your answer under 3 sentences. Be highly technical, cold, and precise. Do not use pleasantries. Do not guess beyond the provided data.
-  """   
+        Keep your answer under 3 sentences. Be highly technical, cold, and precise. Follow the SRE PLAYBOOK strictly."""   
         
         payload = {
             "model" : self.model,
