@@ -18,27 +18,22 @@ class AegisLLMService:
             for log in context_logs
         ])
 
-        prompt =  f"""You are Aegis, an expert DevOps Site Reliability Engineer (SRE).
-        Your ML Sentinel has just flagged a critical anomaly in the server logs.
+        prompt =  f"""You are Aegis, a strict Site Reliability Engineer. Analyze this anomaly.
 
-        [RECENT NORMAL TRAFFIC]
-        {context_str if context_str else "No recent context available. Server just booted."}
+[CRITICAL ANOMALY LOG]
+Status Code: {anomaly_log['status']}
+Payload Size: {anomaly_log['bytes']} bytes
+Request Frequency: {anomaly_log['ip_freq']}
 
-        [CRITICAL ANOMALY LOG]
-        Status Code: {anomaly_log['status']}
-        Payload Size (Bytes): {anomaly_log['bytes']}
-        Requests from this IP: {anomaly_log['ip_freq']}
+[SRE PLAYBOOK RULES - APPLY EXACTLY ONE MATCHING RULE]
+RULE 1: IF Status Code is 401 or 403 -> Diagnosis: Brute Force / Scanner. Mitigation: Use `fail2ban` or block IP.
+RULE 2: IF Payload Size > 1000000 bytes -> Diagnosis: Data Exfiltration. Mitigation: Terminate active sessions and rotate API keys.
+RULE 3: IF Status Code is 500 or 503 -> Diagnosis: Application Crash/Backend Failure. Mitigation: Restart service and check stack trace.
+RULE 4: IF Request Frequency > 500 AND Payload Size > 1000 -> Diagnosis: Volumetric DDoS. Mitigation: Execute `iptables -A INPUT -s <IP> -j DROP`.
 
-        [SRE PLAYBOOK (STRICT INSTRUCTIONS)]
-        - IF HIGH FREQUENCY + HIGH BYTES: Diagnose as DDoS/Volumetric Attack. Suggest `iptables -A INPUT -s <IP> -j DROP` or configuring WAF rate-limits. DO NOT suggest diagnostic tools like `nmap`.
-        - IF HIGH FREQUENCY + 401/403 STATUS: Diagnose as Brute Force / Credential Stuffing. Suggest `fail2ban` or blocking the IP.
-        - IF LOW FREQUENCY + MASSIVE BYTES (Status 200): Diagnose as Data Exfiltration. Suggest immediately rotating API keys or killing active sessions.
-
-        [TASK]
-        Based purely on the data above, provide the Root Cause Analysis and mitigation.
-
-        [CONSTRAINTS]
-        Keep your answer under 3 sentences. Be highly technical, cold, and precise. Follow the SRE PLAYBOOK strictly."""   
+[TASK]
+Based on the numbers in the CRITICAL ANOMALY LOG, identify which RULE applies. 
+Write a 2-sentence response stating the exact diagnosis and the required mitigation. Do not invent new details."""   
         
         payload = {
             "model" : self.model,
