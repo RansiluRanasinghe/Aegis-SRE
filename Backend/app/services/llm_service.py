@@ -25,13 +25,19 @@ class AegisLLMService:
         else:
             history_str = "No preceding logs. Sudden occurrence."      
 
-        prompt = f"""Rewrite the following facts into a professional 2-sentence SRE Incident Report. Do not add outside information.
+        prompt = f"""Rewrite the telemetry into a 2-sentence SRE report. Follow the exact pattern of the examples. Do not invent details.
 
-FACT 1 (Trigger): Status {status}, Payload {bytes_size} bytes, IP Frequency {ip_freq}.
-FACT 2 (System Diagnosis): {system_diagnosis}
-FACT 3 (Recent History): {history_str}
+Example 1:
+Input: Status 503, Payload 0.0 bytes. Diagnosis: Application Crash / Backend Failure.
+Output: A backend application crash was detected via a 503 status code with a 0.0-byte payload. The service is being restarted and stack traces are being reviewed to restore stability.
 
-INCIDENT REPORT:"""
+Example 2:
+Input: Status 401, Payload 120.0 bytes. Diagnosis: Brute Force / Scanner Attack. Action: Block IP via fail2ban.
+Output: A brute force scanner attack was detected via anomalous 401 unauthorized requests. Immediate mitigation has been triggered to block the offending IP address via fail2ban.
+
+Now do this one:
+Input: Status {status}, Payload {bytes_size} bytes. Diagnosis: {system_diagnosis}
+Output:"""
         
         payload = {
             "model" : self.model,
