@@ -1,5 +1,6 @@
 import requests
 from app.core.config import settings
+from app.core.rule_engine import evaluate_anomaly
 
 class AegisLLMService:
 
@@ -13,27 +14,26 @@ class AegisLLMService:
 
         print("Aegis-Brain: Crafting Root Cause Analysis...")
 
-        context_str = "\n".join([
-            f"- Status: {log['status']} | Bytes: {log['bytes']} | IP Freq: {log['ip_freq']}" 
-            for log in context_logs
-        ])
+        status = anomaly_log["status"]
+        bytes_size = anomaly_log["bytes"]
+        ip_freq = anomaly_log["ip_freq"]
 
-        prompt =  f"""You are Aegis, a strict Site Reliability Engineer. Analyze this anomaly.
+        system_diagnosis = evaluate_anomaly(status, bytes_size, ip_freq)
 
-[CRITICAL ANOMALY LOG]
-Status Code: {anomaly_log['status']}
-Payload Size: {anomaly_log['bytes']} bytes
-Request Frequency: {anomaly_log['ip_freq']}
+        prompt = f"""You are Aegis, a strict Site Reliability Engineer. 
+Write a 2-sentence Incident Report for the Command Center dashboard.
 
-[SRE PLAYBOOK RULES - APPLY EXACTLY ONE MATCHING RULE]
-RULE 1: IF Status Code is 401 or 403 -> Diagnosis: Brute Force / Scanner. Mitigation: Use `fail2ban` or block IP.
-RULE 2: IF Payload Size > 1000000 bytes -> Diagnosis: Data Exfiltration. Mitigation: Terminate active sessions and rotate API keys.
-RULE 3: IF Status Code is 500 or 503 -> Diagnosis: Application Crash/Backend Failure. Mitigation: Restart service and check stack trace.
-RULE 4: IF Request Frequency > 500 AND Payload Size > 1000 -> Diagnosis: Volumetric DDoS. Mitigation: Execute `iptables -A INPUT -s <IP> -j DROP`.
+[INCIDENT DATA]
+Status Code: {status}
+Payload Size: {bytes_size} bytes
+Request Frequency: {ip_freq}
+
+[SYSTEM ANALYSIS]
+{system_diagnosis}
 
 [TASK]
-Based on the numbers in the CRITICAL ANOMALY LOG, identify which RULE applies. 
-Write a 2-sentence response stating the exact diagnosis and the required mitigation. Do not invent new details."""   
+Draft a concise, highly technical summary combining the Incident Data with the System Analysis. Do not invent new facts. Be cold and precise.
+"""   
         
         payload = {
             "model" : self.model,
