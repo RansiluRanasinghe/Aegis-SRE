@@ -56,7 +56,7 @@ You must respond ONLY with a valid JSON object using this exact structure:
             response.raise_for_status()
             result = response.json()
             
-            raw_llm_text = result.get("resonse", "{}").strip()
+            raw_llm_text = result.get("response", "{}").strip()
             print(f"RAW LLM OUTPUT: {raw_llm_text}")
 
             try:
