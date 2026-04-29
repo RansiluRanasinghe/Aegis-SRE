@@ -25,18 +25,13 @@ class AegisLLMService:
         else:
             history_str = "No preceding logs. Sudden occurrence."      
 
-        prompt = f"""<|begin_of_text|><|start_header_id|>system<|end_header_id|>
-You are an automated SRE reporting script. You do not converse. You do not greet. You output ONLY the final 2-sentence executive summary. Do not invent details. Combine the anomaly data, the required mitigation, and the recent history into a clean, professional incident report.<|eot_id|><|start_header_id|>user<|end_header_id|>
-[RECENT TRAFFIC HISTORY]
-{history_str}
+        prompt = f"""Rewrite the following facts into a professional 2-sentence SRE Incident Report. Do not add outside information.
 
-[ANOMALY TRIGGER]
-Status: {status} | Payload: {bytes_size} bytes | Frequency: {ip_freq}
+FACT 1 (Trigger): Status {status}, Payload {bytes_size} bytes, IP Frequency {ip_freq}.
+FACT 2 (System Diagnosis): {system_diagnosis}
+FACT 3 (Recent History): {history_str}
 
-[REQUIRED DIAGNOSIS & MITIGATION]
-{system_diagnosis}
-
-Write the 2-sentence incident report.<|eot_id|><|start_header_id|>assistant<|end_header_id|>"""
+INCIDENT REPORT:"""
         
         payload = {
             "model" : self.model,
