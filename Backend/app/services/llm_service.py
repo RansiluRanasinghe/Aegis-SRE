@@ -34,7 +34,10 @@ Status Code: {status}
 Payload Size: {bytes_size} bytes
 Diagnosis and Action: {system_diagnosis}
 
-Output your response strictly as a JSON object with a single key named "report". Do not include any conversational text.
+You must respond ONLY with a valid JSON object using this exact structure:
+{{
+  "report": "Your 2-sentence report goes here."
+}}
 """
         
         payload = {
@@ -54,6 +57,7 @@ Output your response strictly as a JSON object with a single key named "report".
             result = response.json()
             
             raw_llm_text = result.get("resonse", "{}").strip()
+            print(f"RAW LLM OUTPUT: {raw_llm_text}")
 
             try:
                 parsed_json = json.loads(raw_llm_text)
