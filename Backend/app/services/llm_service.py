@@ -20,44 +20,43 @@ class AegisLLMService:
 
         system_diagnosis = evaluate_anomaly(status, bytes_size, ip_freq)
 
-        prompt = f"""You are Aegis, a strict Site Reliability Engineer. 
-Write a 2-sentence Incident Report for the Command Center dashboard.
+        if context_logs:
+            history_str = "\n".join([f"- Status: {l['status']} | Bytes: {l['bytes']} | Freq: {l['ip_freq']}" for l in context_logs])
+        else:
+            history_str = "No preceding logs. Sudden occurrence."      
 
-[INCIDENT DATA]
-Status Code: {status}
-Payload Size: {bytes_size} bytes
-Request Frequency: {ip_freq}
+        prompt = f"""<|begin_of_text|><|start_header_id|>system<|end_header_id|>
+You are an automated SRE reporting script. You do not converse. You do not greet. You output ONLY the final 2-sentence executive summary. Do not invent details. Combine the anomaly data, the required mitigation, and the recent history into a clean, professional incident report.<|eot_id|><|start_header_id|>user<|end_header_id|>
+[RECENT TRAFFIC HISTORY]
+{history_str}
 
-[SYSTEM ANALYSIS]
+[ANOMALY TRIGGER]
+Status: {status} | Payload: {bytes_size} bytes | Frequency: {ip_freq}
+
+[REQUIRED DIAGNOSIS & MITIGATION]
 {system_diagnosis}
 
-[TASK]
-Draft a concise, highly technical summary combining the Incident Data with the System Analysis. Do not invent new facts. Be cold and precise.
-"""   
+Write the 2-sentence incident report.<|eot_id|><|start_header_id|>assistant<|end_header_id|>"""
         
         payload = {
             "model" : self.model,
             "prompt" : prompt,
             "stream" : False,
             "options" : {
-                "temperature" : settings.LLM_TEMPERATURE,
-                "num_predict" : settings.LLM_MAX_TOKENS
+                "temperature" : 0.1,
+                "num_predict" : 100
             }
         }
 
         try:
-
             response = requests.post(self.api_url, json=payload, timeout=45.0)
             response.raise_for_status()
-
             result = response.json()
             return result.get("response", "Error: Empty response from LLM.").strip()
-        
+            
         except requests.exceptions.Timeout:
-            return "DIAGNOSIS FAILED: GenAI model timed out (Exceeded 10s). Manual SRE intervention required."
-        except requests.exceptions.ConnectionError:
-            return "DIAGNOSIS FAILED: Cannot connect to Ollama. Ensure Llama 3.2 is running locally on port 11434."
+            return "DIAGNOSIS FAILED: GenAI model timed out. Manual SRE intervention required."
         except Exception as e:
-            return f"DIAGNOSIS FAILED: Unexpected GenAI pipeline error: {str(e)}"
+            return f"DIAGNOSIS FAILED: Unexpected pipeline error: {str(e)}"
         
 llm_engine = AegisLLMService()        
