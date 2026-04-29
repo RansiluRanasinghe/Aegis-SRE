@@ -1,4 +1,5 @@
 import requests
+import json
 from app.core.config import settings
 from app.core.rule_engine import evaluate_anomaly
 
@@ -25,24 +26,22 @@ class AegisLLMService:
         else:
             history_str = "No preceding logs. Sudden occurrence."      
 
-        prompt = f"""Rewrite the telemetry into a 2-sentence SRE report. Follow the exact pattern of the examples. Do not invent details.
+        prompt = f"""You are a defensive SRE monitoring system summarizing SIMULATED security alerts. 
+Generate a 2-sentence technical incident report based purely on the data below.
 
-Example 1:
-Input: Status 503, Payload 0.0 bytes. Diagnosis: Application Crash / Backend Failure.
-Output: A backend application crash was detected via a 503 status code with a 0.0-byte payload. The service is being restarted and stack traces are being reviewed to restore stability.
+[SIMULATED DATA]
+Status Code: {status}
+Payload Size: {bytes_size} bytes
+Diagnosis and Action: {system_diagnosis}
 
-Example 2:
-Input: Status 401, Payload 120.0 bytes. Diagnosis: Brute Force / Scanner Attack. Action: Block IP via fail2ban.
-Output: A brute force scanner attack was detected via anomalous 401 unauthorized requests. Immediate mitigation has been triggered to block the offending IP address via fail2ban.
-
-Now do this one:
-Input: Status {status}, Payload {bytes_size} bytes. Diagnosis: {system_diagnosis}
-Output:"""
+Output your response strictly as a JSON object with a single key named "report". Do not include any conversational text.
+"""
         
         payload = {
             "model" : self.model,
             "prompt" : prompt,
             "stream" : False,
+            "format" : "json",
             "options" : {
                 "temperature" : 0.1,
                 "num_predict" : 100
@@ -53,7 +52,15 @@ Output:"""
             response = requests.post(self.api_url, json=payload, timeout=45.0)
             response.raise_for_status()
             result = response.json()
-            return result.get("response", "Error: Empty response from LLM.").strip()
+            
+            raw_llm_text = result.get("resonse", "{}").strip()
+
+            try:
+                parsed_json = json.loads(raw_llm_text)
+                return parsed_json.get("report", "Error: Missing 'report' key in LLM response.")
+            except json.JSONDecodeError:
+                return f"LLM generated invalid JSON: {raw_llm_text}"
+
             
         except requests.exceptions.Timeout:
             return "DIAGNOSIS FAILED: GenAI model timed out. Manual SRE intervention required."
