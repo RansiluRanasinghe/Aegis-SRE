@@ -1,0 +1,24 @@
+{
+  "repository_name": "aegis-core-backend",
+  "architecture_notes": "The system uses a FastAPI backend. The cache layer is highly memory sensitive. The /login endpoint is vulnerable to brute force if rate limiting is off. Mass downloads over 1GB usually indicate data exfiltration. Default rate limit is 500 req/min.",
+  "recent_commits": [
+    {
+      "hash": "a3f812c",
+      "author": "dev-team",
+      "message": "refactor: cache layer rewrite. replaced LRU eviction policy with unbounded dict to improve read speed.",
+      "date": "2026-04-28"
+    },
+    {
+      "hash": "b7c921a",
+      "author": "sec-ops",
+      "message": "feat: updated authentication flow. rate limiting temporarily disabled on /login for load testing.",
+      "date": "2026-04-29"
+    },
+    {
+      "hash": "c4d398f",
+      "author": "data-eng",
+      "message": "fix: increased max payload size for internal reporting dashboard to 5GB.",
+      "date": "2026-04-30"
+    }
+  ]
+}
