@@ -1,12 +1,20 @@
 from fastapi import APIRouter, HTTPException
 from collections import deque
+import time
 from app.schemas.log_schemas import LogFeatureInput, AnomalyResonse
 from app.services.ml_services import ml_engine
 from app.services.llm_service import llm_engine
 
 router = APIRouter()
 
-context_buffer = deque(maxlen=10)
+context_buffer = deque(maxlen=5)
+
+llm_cache = {
+    "diagnosis" : None,
+    "expires_at" : 0.0
+}
+
+CACHE_TTL = 10.0
 
 @router.get("/health", summary="Health Check", description="Endpoint to check if the API is running.")
 async def health_check():
@@ -37,20 +45,30 @@ async def analyze_log(log_data: LogFeatureInput):
             )
 
         else:
+             
+             current_time = time.time()
 
-             diagnosis = llm_engine.diagnose(
-                 anomaly_log=log_dict,
-                    context_logs=list(context_buffer)
-             )
+             if current_time < llm_cache["expires_at"]:
+                print("CIRCUIT BREAKER ACTIVE: Serving cached RCA. (Protecting local LLM)")
+                final_diagnosis = llm_cache["diagnosis"]
 
-             context_buffer.clear()
+             else:
+                print("CIRCUIT BREAKER OPEN: Waking GenAI for new RCA...")
+                final_diagnosis = llm_engine.diagnose(
+                  anomaly_log =  log_dict,
+                  context_logs = list(context_buffer)
+                )
+                llm_cache["diagnosis"] = final_diagnosis
+                llm_cache["expires_at"] = current_time + CACHE_TTL
+
+                context_buffer.clear()
 
              return AnomalyResonse(
                 is_anomaly=True,
                 confidence_score=prediction_result["confidence_score"],
                 message="CRITICAL: Outlier behavior detected. GenAI RCA generated.",
-                llm_diagnosis=diagnosis
-             )
-
+                llm_diagnosis=final_diagnosis
+                )
+        
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")       
