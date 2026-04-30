@@ -52,8 +52,9 @@ def simulate():
 
             if result.get("is_anomaly"):
                 print(f"[ANOMALY DETECTED] IP: {row['ip']} | Status: {row['status']} | Bytes: {row['bytes']}")
-                print(f"=Score: {result['confidence_score']:.3f} - Waking GenAI Agent...\n")
-                time.sleep(1.5)
+                print(f"ML Confidence: {result['confidence_score']:.3f}\n")
+                print(f"       AI Diagnosis: {result.get('llm_diagnosis')}\n")
+                time.sleep(2.5)
             else:
                print(f"[NORMAL] Score: {result['confidence_score']:.3f}")
 
