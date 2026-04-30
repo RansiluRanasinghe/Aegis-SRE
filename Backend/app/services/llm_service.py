@@ -1,5 +1,7 @@
 import requests
 import json
+import os
+from pathlib import Path
 from app.core.config import settings
 from app.core.rule_engine import evaluate_anomaly
 
@@ -10,6 +12,26 @@ class AegisLLMService:
         self.model = settings.LLM_MODEL
 
         print(f"Aegis-SRE: GenAI Engine initialized. Target: {self.api_url} ({self.model})")
+
+    def _get_repo_context(self) -> str:
+
+        base_dir = Path(__file__).resolve().parent.parent
+        context_path = base_dir / "context" / "repo_context.json"  
+
+        try:
+            with open(context_path, "r") as f:
+                data = json.load(f)
+
+            context_str =  f"Architecture Notes: {data['architecture_notes']}\n\nRecent Commits:\n"
+            for commit in data["recent_commits"]:
+                context_str += f"- [{commit['hash']}] {commit['author']}: {commit['message']}\n"
+
+            return context_str
+
+        except FileNotFoundError:
+            return "No repository context found."
+        except Exception as e:
+            return f"Error loading repository context: {str(e)}"
 
     def diagnose(self, anomaly_log: dict, context_logs: list[dict]) -> str:
 
