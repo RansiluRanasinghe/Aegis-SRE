@@ -40,7 +40,11 @@ for attack_name, payload in edge_cases.items():
         result = response.json()
 
         print(f"ML Confidence Score: {result['confidence_score']:.3f}")
-        print(f"AI Diagnosis: {result.get('llm_diagnosis', 'No diagnosis generated.')}\n")
+        rca = result.get("root_cause_analysis", "No RCA provided.")
+        patch = result.get("suggested_patch", "No patch provided.")
+
+        print(f"Root Cause Analysis:\n{rca}\n")
+        print(f"Suggested Patch:\n{patch}\n")
         print("....................................\n")
 
     except Exception as e:
