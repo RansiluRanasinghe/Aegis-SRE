@@ -46,6 +46,7 @@ class AegisLLMService:
             return context_str              
 
         except FileNotFoundError:
+            print(f"CRITICAL: File not found! Python is looking exactly here: {context_path}")
             return "No repository context found."
         except Exception as e:
             return f"Error loading repository context: {str(e)}"
@@ -66,6 +67,8 @@ class AegisLLMService:
             history_str = "No preceding logs. Sudden occurrence."
 
         system_context = self._get_repo_context(system_diagnosis=system_diagnosis)          
+
+        print(f"\n--- DEBUG: LOADED CONTEXT ---\n{system_context}\n-----------------------------\n")
 
         prompt = f"""You are Aegis-SRE, an autonomous AI Diagnostician. 
 Determine the root cause of this anomaly by comparing the system logs to the architectural context and recent Git commits.
