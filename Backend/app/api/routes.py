@@ -42,7 +42,8 @@ async def analyze_log(log_data: LogFeatureInput):
                 confidence_score=prediction_result["confidence_score"],
                 message="OK: Traffic within normal parameters.",
                 root_cause_analysis=None,
-                suggested_patch=None
+                suggested_patch=None,
+                referenced_commit=None
             )
 
         else:
@@ -69,7 +70,8 @@ async def analyze_log(log_data: LogFeatureInput):
                 confidence_score=prediction_result["confidence_score"],
                 message="CRITICAL: Outlier behavior detected. GenAI RCA generated.",
                 root_cause_analysis=final_diagnosis.get("root_cause_analysis"),
-                suggested_patch=final_diagnosis.get("suggested_patch")
+                suggested_patch=final_diagnosis.get("suggested_patch"),
+                referenced_commit=final_diagnosis.get("referenced_commit")
                 )
         
     except Exception as e:

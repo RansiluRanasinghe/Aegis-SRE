@@ -42,7 +42,9 @@ for attack_name, payload in edge_cases.items():
         print(f"ML Confidence Score: {result['confidence_score']:.3f}")
         rca = result.get("root_cause_analysis", "No RCA provided.")
         patch = result.get("suggested_patch", "No patch provided.")
+        commit = result.get('referenced_commit', 'None')
 
+        print(f"Culprit Commit: [{commit}]")
         print(f"Root Cause Analysis:\n{rca}\n")
         print(f"Suggested Patch:\n{patch}\n")
         print("....................................\n")

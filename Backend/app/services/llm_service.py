@@ -70,7 +70,8 @@ Based purely on the context above, write a Root Cause Analysis (RCA) explaining 
 You must respond ONLY with a valid JSON object using this exact structure:
 {{
   "root_cause_analysis": "Your explanation goes here.",
-  "suggested_patch": "Your code or configuration patch goes here."
+  "suggested_patch": "Your code or configuration patch goes here.",
+  "referenced_commit": "The exact 7-character commit hash (e.g., b7c921a) responsible, or 'None'"
 }}
 """
         
@@ -97,15 +98,16 @@ You must respond ONLY with a valid JSON object using this exact structure:
                 parsed_json = json.loads(raw_llm_text)
                 return {
                     "root_cause_analysis": parsed_json.get("root_cause_analysis", "Analysis failed."),
-                    "suggested_patch": parsed_json.get("suggested_patch", "Patch generation failed.")
+                    "suggested_patch": parsed_json.get("suggested_patch", "Patch generation failed."),
+                    "referenced_commit": parsed_json.get("referenced_commit", "None")
                 }
             except json.JSONDecodeError:
-                return {"root_cause_analysis": f"JSON Error: {raw_llm_text}", "suggested_patch": "N/A"}
+                return {"root_cause_analysis": f"JSON Error: {raw_llm_text}", "suggested_patch": "N/A", "referenced_commit": "None"}
 
             
         except requests.exceptions.Timeout:
-            return {"root_cause_analysis": "Timeout Error", "suggested_patch": "Manual SRE intervention required."}
+            return {"root_cause_analysis": "Timeout Error", "suggested_patch": "Manual SRE intervention required.", "referenced_commit": "None"}
         except Exception as e:
-            return {"root_cause_analysis": f"Pipeline Error: {str(e)}", "suggested_patch": "N/A"}
-        
+            return {"root_cause_analysis": f"Pipeline Error: {str(e)}", "suggested_patch": "N/A", "referenced_commit": "None"}
+
 llm_engine = AegisLLMService()        

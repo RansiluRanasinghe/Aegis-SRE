@@ -60,4 +60,9 @@ class AnomalyResonse(BaseModel):
     suggested_patch: Optional[str] = Field(
         default=None,
         description="The suggested code or configuration fix."
+    )
+
+    referenced_commit: Optional[str] = Field(
+        default=None,
+        description="The specific git commit hash responsible for the anomaly."
     )       
