@@ -13,7 +13,7 @@ class AegisLLMService:
 
         print(f"Aegis-SRE: GenAI Engine initialized. Target: {self.api_url} ({self.model})")
 
-    def _get_repo_context(self) -> str:
+    def _get_repo_context(self, system_diagnosis: str) -> str:
 
         base_dir = Path(__file__).resolve().parent.parent
         context_path = base_dir / "context" / "repo_context.json"  
@@ -23,10 +23,27 @@ class AegisLLMService:
                 data = json.load(f)
 
             context_str =  f"Architecture Notes: {data['architecture_notes']}\n\nRecent Commits:\n"
-            for commit in data["recent_commits"]:
-                context_str += f"- [{commit['hash']}] {commit['author']}: {commit['message']}\n"
 
-            return context_str
+            keywords = []
+            if "auth" in system_diagnosis.lower() or "rate limit" in system_diagnosis.lower():
+                keywords = ["auth", "login", "rate limit", "security"]
+            elif "payload" in system_diagnosis.lower() or "data" in system_diagnosis.lower():
+                keywords = ["payload", "data", "size", "download"]
+            elif "memory" in system_diagnosis.lower() or "backend" in system_diagnosis.lower():
+                keywords = ["cache", "memory", "refactor", "dict"]
+
+            filtered_commits = []
+            for commit in data["recent_commits"]:
+                if not keywords or any(kw in commit["message"].lower() for kw in keywords):
+                    filtered_commits.append(commit)
+
+            if not filtered_commits:
+                filtered_commits = data["recent_commits"]
+
+            for commit in filtered_commits:
+                context_str += f"- [{commit['hash']}] {commit['author']}: {commit['message']}\n"  
+
+            return context_str              
 
         except FileNotFoundError:
             return "No repository context found."
