@@ -67,12 +67,13 @@ Status Code: {status} | Payload Size: {bytes_size} bytes | IP Frequency: {ip_fre
 
 Based purely on the context above, write a Root Cause Analysis (RCA) explaining what caused the anomaly, and a Suggested Patch to fix it.
 
-You must respond ONLY with a valid JSON object using this exact structure:
-{{
-  "root_cause_analysis": "Your explanation goes here.",
-  "suggested_patch": "Your code or configuration patch goes here.",
-  "referenced_commit": "The exact 7-character commit hash (e.g., b7c921a) responsible, or 'None'"
-}}
+You must respond ONLY with a valid JSON object using this exact structure. You MUST generate the "reasoning" key first:
+        {{
+          "reasoning": "Think step-by-step. 1) What is the symptom? 2) Which specific commit explains this symptom? 3) How do we fix it?",
+          "root_cause_analysis": "Your formal explanation goes here.",
+          "suggested_patch": "Your code or configuration patch goes here.",
+          "referenced_commit": "The exact 7-character commit hash responsible, or 'None'"
+        }}
 """
         
         payload = {

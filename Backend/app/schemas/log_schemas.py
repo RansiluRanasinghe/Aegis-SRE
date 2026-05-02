@@ -65,4 +65,9 @@ class AnomalyResonse(BaseModel):
     referenced_commit: Optional[str] = Field(
         default=None,
         description="The specific git commit hash responsible for the anomaly."
+    )
+
+    reasoning_scrap: Optional[str] = Field(
+        default=None,
+        description="The LLM's internal chain-of-thought."
     )       
