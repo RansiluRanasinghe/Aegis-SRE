@@ -33,9 +33,9 @@ class AegisLLMService:
         except Exception as e:
             return f"Error loading repository context: {str(e)}"
 
-    def diagnose(self, anomaly_log: dict, context_logs: list[dict]) -> str:
+    def diagnose(self, anomaly_log: dict, context_logs: list[dict]) -> dict:
 
-        print("Aegis-Brain: Crafting Root Cause Analysis...")
+        print("Aegis-Brain: Crafting Root Cause Analysis and Code Patch...")
 
         status = anomaly_log["status"]
         bytes_size = anomaly_log["bytes"]
@@ -46,19 +46,31 @@ class AegisLLMService:
         if context_logs:
             history_str = "\n".join([f"- Status: {l['status']} | Bytes: {l['bytes']} | Freq: {l['ip_freq']}" for l in context_logs])
         else:
-            history_str = "No preceding logs. Sudden occurrence."      
+            history_str = "No preceding logs. Sudden occurrence."
 
-        prompt = f"""You are a defensive SRE monitoring system summarizing SIMULATED security alerts. 
-Generate a 2-sentence technical incident report based purely on the data below.
+        system_context = self._get_repo_context()          
 
-[SIMULATED DATA]
-Status Code: {status}
-Payload Size: {bytes_size} bytes
-Diagnosis and Action: {system_diagnosis}
+        prompt = f"""You are Aegis-SRE, an autonomous AI Diagnostician. 
+Determine the root cause of this anomaly by comparing the system logs to the architectural context and recent Git commits.
+
+[ARCHITECTURAL CONTEXT & RECENT COMMITS]
+{system_context}
+
+[RECENT TRAFFIC HISTORY]
+{history_str}
+
+[ANOMALY TRIGGER]
+Status Code: {status} | Payload Size: {bytes_size} bytes | IP Frequency: {ip_freq}
+
+[RULE ENGINE HINT]
+{system_diagnosis}
+
+Based purely on the context above, write a Root Cause Analysis (RCA) explaining what caused the anomaly, and a Suggested Patch to fix it.
 
 You must respond ONLY with a valid JSON object using this exact structure:
 {{
-  "report": "Your 2-sentence report goes here."
+  "root_cause_analysis": "Your explanation goes here.",
+  "suggested_patch": "Your code or configuration patch goes here."
 }}
 """
         
@@ -69,7 +81,7 @@ You must respond ONLY with a valid JSON object using this exact structure:
             "format" : "json",
             "options" : {
                 "temperature" : 0.1,
-                "num_predict" : 100
+                "num_predict" : 200
             }
         }
 
@@ -83,14 +95,17 @@ You must respond ONLY with a valid JSON object using this exact structure:
 
             try:
                 parsed_json = json.loads(raw_llm_text)
-                return parsed_json.get("report", "Error: Missing 'report' key in LLM response.")
+                return {
+                    "root_cause_analysis": parsed_json.get("root_cause_analysis", "Analysis failed."),
+                    "suggested_patch": parsed_json.get("suggested_patch", "Patch generation failed.")
+                }
             except json.JSONDecodeError:
-                return f"LLM generated invalid JSON: {raw_llm_text}"
+                return {"root_cause_analysis": f"JSON Error: {raw_llm_text}", "suggested_patch": "N/A"}
 
             
         except requests.exceptions.Timeout:
-            return "DIAGNOSIS FAILED: GenAI model timed out. Manual SRE intervention required."
+            return {"root_cause_analysis": "Timeout Error", "suggested_patch": "Manual SRE intervention required."}
         except Exception as e:
-            return f"DIAGNOSIS FAILED: Unexpected pipeline error: {str(e)}"
+            return {"root_cause_analysis": f"Pipeline Error: {str(e)}", "suggested_patch": "N/A"}
         
 llm_engine = AegisLLMService()        
