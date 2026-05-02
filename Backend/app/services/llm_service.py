@@ -65,7 +65,7 @@ class AegisLLMService:
         else:
             history_str = "No preceding logs. Sudden occurrence."
 
-        system_context = self._get_repo_context()          
+        system_context = self._get_repo_context(system_diagnosis=system_diagnosis)          
 
         prompt = f"""You are Aegis-SRE, an autonomous AI Diagnostician. 
 Determine the root cause of this anomaly by comparing the system logs to the architectural context and recent Git commits.
@@ -100,7 +100,7 @@ You must respond ONLY with a valid JSON object using this exact structure. You M
             "format" : "json",
             "options" : {
                 "temperature" : 0.1,
-                "num_predict" : 200
+                "num_predict" : 500
             }
         }
 
@@ -115,6 +115,7 @@ You must respond ONLY with a valid JSON object using this exact structure. You M
             try:
                 parsed_json = json.loads(raw_llm_text)
                 return {
+                    "reasoning": parsed_json.get("reasoning", "No reasoning generated."),
                     "root_cause_analysis": parsed_json.get("root_cause_analysis", "Analysis failed."),
                     "suggested_patch": parsed_json.get("suggested_patch", "Patch generation failed."),
                     "referenced_commit": parsed_json.get("referenced_commit", "None")
