@@ -93,4 +93,32 @@ with col4:
     if st.button("Cache Crash", use_container_width=True):
         send_traffic({"bytes": 0.0, "status": 502, "hour": 14, "ip_freq": 12, "is_error": 1}, "Crash Loop") 
 
-st.markdown("---")               
+st.markdown("---")
+
+feed_col, ai_col = st.columns([1.5, 1])
+
+with feed_col:
+    st.subheader("Recent Telemetry Feed")
+    if st.session_state.log_history:
+
+        df = pd.DataFrame(st.session_state.log_history)
+
+        def color_anomalies(val):
+            color = '#ff4b4b' if 'YES' in str(val) else ''
+            return f'color: {color}'
+        
+        st.dataframe(df.style.map(color_anomalies, subset=['Is Anomaly']), use_container_width=True, hide_index=True)
+
+    else:
+        st.info("Awaiting telemetry data... Click a button above to generate traffic.")
+
+with ai_col:
+    st.subheader("Aegis AI Diagnostician")
+
+    incident = st.session_state.activate_incident
+
+    commit_hash = incident.get("referenced_commit")
+    if commit_hash == "None"or not commit_hash:
+           st.warning("**AI Confidence Low:** Could not isolate culprit commit. Manual SRE Audit Required.")
+    else:
+        st.success(f"**Culprit Isolated:** Commit `{commit_hash}`")                
