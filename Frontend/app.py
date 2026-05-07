@@ -34,4 +34,7 @@ with st.sidebar:
 st.title("Live Telemetry & Diagnostics")
 st.markdown("Monitoring incoming API traffic for statistical anomalies...")
 
-st.info("The Live Telemetry Feed and Sentinel Alert System will be rendered here.")
+if "log_history" not in st.session_state:
+    st.session_state.log_history = []
+if "activate_incident" not in st.session_state:
+    st.session_state.activate_incident = None
