@@ -78,19 +78,19 @@ def send_traffic(payload, label):
             st.error("Failed to connect to backend API.")
 
 with col1:
-    if st.button("Noraml Traffic", use_container_width=True):
+    if st.button("Noraml Traffic", width="stretch"):
         send_traffic({"bytes": random.randint(500, 5000), "status": 200, "hour": 12, "ip_freq": random.randint(1, 10), "is_error": 0}, "Normal")
 
 with col2:
-    if st.button("Brute Force", use_container_width=True):
+    if st.button("Brute Force", width="stretch"):
         send_traffic({"bytes": 120.0, "status": 401, "hour": 2, "ip_freq": 850, "is_error": 1}, "Brute Force")
 
 with col3:
-    if st.button("Exfiltration", use_container_width=True):
+    if st.button("Exfiltration", width="stretch"):
         send_traffic({"bytes": 5000000000.0, "status": 200, "hour": 14, "ip_freq": 2, "is_error": 0}, "Exfiltration")
 
 with col4:
-    if st.button("Cache Crash", use_container_width=True):
+    if st.button("Cache Crash", width="stretch"):
         send_traffic({"bytes": 0.0, "status": 502, "hour": 14, "ip_freq": 12, "is_error": 1}, "Crash Loop") 
 
 st.markdown("---")
