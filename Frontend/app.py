@@ -1,5 +1,8 @@
 import streamlit as st
 import requests
+import time
+import pandas as pd
+import random
 
 st.set_page_config(
     page_title="Aegis Commander",
@@ -38,3 +41,40 @@ if "log_history" not in st.session_state:
     st.session_state.log_history = []
 if "activate_incident" not in st.session_state:
     st.session_state.activate_incident = None
+
+st.subheader("Traffic Control Panel")
+st.caption("Simulate real-time log ingestion.")
+
+col1, col2, col3, col4 = st.columns(4)
+
+def send_traffic(payload, label):
+
+    with st.spinner(f"Ingesting {label}..."):
+
+        try:
+            res = requests.post(f"{API_BASE_URL}/analyze", json=payload, timeout=60)
+            if res.status_code == 200:
+                data = res.json()
+
+                new_log = {
+                    "Timestamp": time.strftime("%H:%M:%S"),
+                    "Type": label,
+                    "Status": payload["status"],
+                    "Bytes": payload["bytes"],
+                    "Freq": payload["ip_freq"],
+                    "ML Score": round(data["confidence_score"], 3),
+                    "Is Anomaly": "YES" if data["is_anomaly"] else "NO"
+                }
+
+                st.session_state.log_history.insert(0, new_log)
+                st.session_state.log_history = st.session_state.log_history[:10]
+
+                if data["is_anomaly"]:
+                    st.session_state.activate_incident = data
+                else:
+                    st.session_state.activate_incident = None
+
+        except requests.exceptions.ConnectionError:
+            st.error("Failed to connect to backend API.")
+            
+                                
