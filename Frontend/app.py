@@ -30,5 +30,8 @@ with st.sidebar:
     except requests.exceptions.ConnectionError:
         st.error("Backend: Offline")
         st.caption("Ensure Uvicorn is running on port 8000.")
-        
-              
+
+st.title("Live Telemetry & Diagnostics")
+st.markdown("Monitoring incoming API traffic for statistical anomalies...")
+
+st.info("The Live Telemetry Feed and Sentinel Alert System will be rendered here.")
