@@ -117,8 +117,26 @@ with ai_col:
 
     incident = st.session_state.activate_incident
 
-    commit_hash = incident.get("referenced_commit")
-    if commit_hash == "None"or not commit_hash:
+    if incident:
+
+        st.error("### CRITICAL ANOMALY DETECTED")
+
+        commit_hash = incident.get("referenced_commit")
+        if commit_hash == "None"or not commit_hash:
            st.warning("**AI Confidence Low:** Could not isolate culprit commit. Manual SRE Audit Required.")
+        else:
+           st.success(f"**Culprit Isolated:** Commit `{commit_hash}`")
+
+        tab1, tab2, tab3 = st.tabs(["Root Cause", "Suggested Patch", "AI Scratchpad"])
+
+        with tab1:
+          st.write(incident.get("root_cause_analysis", "No RCA provided."))
+        with tab2:
+          st.code(incident.get("suggested_patch", "No patch provided."), language="markdown")
+        with tab3:
+          st.caption("The 1B Model's internal reasoning chain:")
+          st.text(incident.get("reasoning_scrap", "No reasoning data."))
+
     else:
-        st.success(f"**Culprit Isolated:** Commit `{commit_hash}`")                
+       st.success("System stable. No active incidents.")       
+                    
