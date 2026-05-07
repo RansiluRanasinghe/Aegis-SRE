@@ -9,3 +9,26 @@ st.set_page_config(
 )
 
 API_BASE_URL = "http://localhost:8000/api/v1"
+
+with st.sidebar:
+    st.title("Aegis Commander")
+    st.markdown("Autonomous SRE Diagnostics")
+    st.markdown("---")
+
+    st.subheader("System Status")
+
+    try:
+        health_res = requests.get(f"{API_BASE_URL}/health", timeout=2)
+        if health_res.status_code == 200:
+            data = health_res.json()
+            st.success("Backend: Online")
+            st.caption(f"**ML Engine:** {data.get('engine')}")
+            st.caption(f"**AI Engine:** {data.get('llm_engine')}")
+        else:
+            st.warning("Backend: Degraded")
+
+    except requests.exceptions.ConnectionError:
+        st.error("Backend: Offline")
+        st.caption("Ensure Uvicorn is running on port 8000.")
+        
+              
