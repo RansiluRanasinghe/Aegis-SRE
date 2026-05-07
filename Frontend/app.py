@@ -78,7 +78,7 @@ def send_traffic(payload, label):
             st.error("Failed to connect to backend API.")
 
 with col1:
-    if st.button("Noraml Traffic", width="stretch"):
+    if st.button("Normal Traffic", width="stretch"):
         send_traffic({"bytes": random.randint(500, 5000), "status": 200, "hour": 12, "ip_freq": random.randint(1, 10), "is_error": 0}, "Normal")
 
 with col2:
@@ -91,7 +91,7 @@ with col3:
 
 with col4:
     if st.button("Cache Crash", width="stretch"):
-        send_traffic({"bytes": 0.0, "status": 502, "hour": 14, "ip_freq": 12, "is_error": 1}, "Crash Loop") 
+        send_traffic({"bytes": 0.0, "status": 502, "hour": 14, "ip_freq": 12, "is_error": 1}, "Crash Loop")
 
 st.markdown("---")
 
