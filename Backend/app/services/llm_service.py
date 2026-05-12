@@ -89,11 +89,20 @@ You must respond ONLY with a valid JSON object using this exact structure. You M
 
             try:
                 parsed_json = json.loads(raw_llm_text)
+
+                patch_data = parsed_json.get("suggested_patch", "Patch generation failed.")
+                if isinstance(patch_data, (dict, list)):
+                    patch_data = json.dumps(patch_data, indent=2)
+
+                commit_data = parsed_json.get("referenced_commit", "None")
+                if not isinstance(commit_data, (dict, list)):
+                    commit_data = str(commit_data)    
+
                 return {
                     "reasoning": parsed_json.get("reasoning", "No reasoning generated."),
                     "root_cause_analysis": parsed_json.get("root_cause_analysis", "Analysis failed."),
-                    "suggested_patch": parsed_json.get("suggested_patch", "Patch generation failed."),
-                    "referenced_commit": parsed_json.get("referenced_commit", "None")
+                    "suggested_patch": patch_data,
+                    "referenced_commit": commit_data
                 }
             except json.JSONDecodeError:
                 return {"root_cause_analysis": f"JSON Error: {raw_llm_text}", "suggested_patch": "N/A", "referenced_commit": "None"}
