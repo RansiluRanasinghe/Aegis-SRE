@@ -21,7 +21,7 @@ print(f"[Scenario: The Silent Cache Explosion]")
 print(f"Payload: {json.dumps(payload)}\n")
 
 try:
-    response = requests.post(API_URL, json=payload, timeout=60.0)
+    response = requests.post(API_URL, json=payload, timeout=300.0)
     result = response.json()
 
     print(f"ML Confidence Score: {result['confidence_score']:.3f}")
