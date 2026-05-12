@@ -80,7 +80,7 @@ You must respond ONLY with a valid JSON object using this exact structure. You M
         }
 
         try:
-            response = requests.post(self.api_url, json=payload, timeout=45.0)
+            response = requests.post(self.api_url, json=payload, timeout=300.0)
             response.raise_for_status()
             result = response.json()
             
