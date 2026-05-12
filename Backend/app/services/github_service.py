@@ -37,4 +37,6 @@ class GitHubService:
             print(f"GitHub API Error: {error_msg}")
             return f"Error loading repository context: {error_msg}"
         except Exception as e:
-            return f"System Error reading GitHub: {str(e)}"             
+            return f"System Error reading GitHub: {str(e)}"
+
+gitub_engine = GitHubService()                     
