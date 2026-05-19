@@ -12,4 +12,7 @@ class Settings:
     LLM_TEMPERATURE: float = 0.1
     LLM_MAX_TOKENS: int = 200
 
+    GITHUB_TOKEN: str = os.getenv("GITHUB_TOKEN", "")
+    GITHUB_REPO: str = os.getenv("GITHUB_REPO", "RansiluRanasinghe/Aegis-SRE")
+
 settings = Settings()    

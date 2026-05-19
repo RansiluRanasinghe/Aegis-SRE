@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 from app.core.config import settings
 from app.core.rule_engine import evaluate_anomaly
+from app.services.github_service import gitub_engine
 
 class AegisLLMService:
 
@@ -15,41 +16,12 @@ class AegisLLMService:
 
     def _get_repo_context(self, system_diagnosis: str) -> str:
 
-        base_dir = Path(__file__).resolve().parent.parent
-        context_path = base_dir / "context" / "repo_context.json"  
+        print("Scanning live GitHub repository for culprit commits...")
 
-        try:
-            with open(context_path, "r") as f:
-                data = json.load(f)
+        live_context = gitub_engine.get_recent_commits(limit=15)
 
-            context_str =  f"Architecture Notes: {data['architecture_notes']}\n\nRecent Commits:\n"
+        return live_context
 
-            keywords = []
-            if "auth" in system_diagnosis.lower() or "rate limit" in system_diagnosis.lower():
-                keywords = ["auth", "login", "rate limit", "security"]
-            elif "payload" in system_diagnosis.lower() or "data" in system_diagnosis.lower():
-                keywords = ["payload", "data", "size", "download"]
-            elif "memory" in system_diagnosis.lower() or "backend" in system_diagnosis.lower():
-                keywords = ["cache", "memory", "refactor", "dict"]
-
-            filtered_commits = []
-            for commit in data["recent_commits"]:
-                if not keywords or any(kw in commit["message"].lower() for kw in keywords):
-                    filtered_commits.append(commit)
-
-            if not filtered_commits:
-                filtered_commits = data["recent_commits"]
-
-            for commit in filtered_commits:
-                context_str += f"- [{commit['hash']}] {commit['author']}: {commit['message']}\n"  
-
-            return context_str              
-
-        except FileNotFoundError:
-            print(f"CRITICAL: File not found! Python is looking exactly here: {context_path}")
-            return "No repository context found."
-        except Exception as e:
-            return f"Error loading repository context: {str(e)}"
 
     def diagnose(self, anomaly_log: dict, context_logs: list[dict]) -> dict:
 
@@ -108,7 +80,7 @@ You must respond ONLY with a valid JSON object using this exact structure. You M
         }
 
         try:
-            response = requests.post(self.api_url, json=payload, timeout=45.0)
+            response = requests.post(self.api_url, json=payload, timeout=300.0)
             response.raise_for_status()
             result = response.json()
             
@@ -117,11 +89,20 @@ You must respond ONLY with a valid JSON object using this exact structure. You M
 
             try:
                 parsed_json = json.loads(raw_llm_text)
+
+                patch_data = parsed_json.get("suggested_patch", "Patch generation failed.")
+                if isinstance(patch_data, (dict, list)):
+                    patch_data = json.dumps(patch_data, indent=2)
+
+                commit_data = parsed_json.get("referenced_commit", "None")
+                if not isinstance(commit_data, (dict, list)):
+                    commit_data = str(commit_data)    
+
                 return {
                     "reasoning": parsed_json.get("reasoning", "No reasoning generated."),
                     "root_cause_analysis": parsed_json.get("root_cause_analysis", "Analysis failed."),
-                    "suggested_patch": parsed_json.get("suggested_patch", "Patch generation failed."),
-                    "referenced_commit": parsed_json.get("referenced_commit", "None")
+                    "suggested_patch": patch_data,
+                    "referenced_commit": commit_data
                 }
             except json.JSONDecodeError:
                 return {"root_cause_analysis": f"JSON Error: {raw_llm_text}", "suggested_patch": "N/A", "referenced_commit": "None"}
