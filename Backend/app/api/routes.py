@@ -47,6 +47,17 @@ async def analyze_log(log_data: LogFeatureInput):
 
         prediction_result = ml_engine.predict(log_dict)
 
+        ui_log = {
+            "Timestamp": time.strftime("%H:%M:%S"),
+            "Status": log_dict["status"],
+            "Bytes": log_dict["bytes"],
+            "Freq": log_dict["ip_freq"],
+            "ML Score": round(prediction_result["confidence_score"], 3),
+            "Is Anomaly": "YES" if prediction_result["is_anomaly"] else "NO"
+        }
+
+        telemetry_history.insert(0, ui_log)
+
         if not prediction_result["is_anomaly"]:
             context_buffer.append(log_dict)
 
@@ -78,6 +89,13 @@ async def analyze_log(log_data: LogFeatureInput):
                 llm_cache["expires_at"] = current_time + CACHE_TTL
 
                 context_buffer.clear()
+
+                system_state["active_incident"] = {
+                    "root_cause_analysis": final_diagnosis.get("root_cause_analysis"),
+                    "suggested_patch": final_diagnosis.get("suggested_patch"),
+                    "referenced_commit": final_diagnosis.get("referenced_commit"),
+                    "reasoning_scrap": final_diagnosis.get("reasoning")
+                }
 
              return AnomalyResonse(
                 is_anomaly=True,
