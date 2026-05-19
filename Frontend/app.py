@@ -30,7 +30,7 @@ with st.sidebar:
         else:
             st.warning("Backend: Degraded")
 
-    except requests.exceptions.ConnectionError:
+    except requests.exceptions.RequestException:
         st.error("Backend: Offline")
         st.caption("Ensure Uvicorn is running on port 8000.")
 
@@ -40,7 +40,7 @@ def fetch_telemetry():
       res = requests.get(f"{API_BASE_URL}/telemetry", timeout=2)
       if res.status_code == 200:
             return res.json()
-   except requests.exceptions.ConnectionError:
+   except requests.exceptions.RequestException:
       pass
 
    return {"logs": [], "active_incident": None}

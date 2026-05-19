@@ -23,7 +23,7 @@ system_state = {
 }
 
 @router.get("/health", summary="Health Check", description="Endpoint to check if the API is running.")
-async def health_check():
+def health_check():
     return {
         "status" : "online",
         "engine" : "Aegis-SRE Isolation Forest",
@@ -32,14 +32,14 @@ async def health_check():
     }
 
 @router.get("/telemetry", summary="Live Telemetry Feed")
-async def get_telemetry():
+def get_telemetry():
     return {
         "logs" : list(telemetry_history),
         "active_incident" : system_state["active_incident"]
     }
 
 @router.post("/analyze", response_model=AnomalyResonse, summary="Analyze Log & Trigger GenAI", description="Endpoint to analyze log features and determine if it's an anomaly.")
-async def analyze_log(log_data: LogFeatureInput):
+def analyze_log(log_data: LogFeatureInput):
 
     try:
 
