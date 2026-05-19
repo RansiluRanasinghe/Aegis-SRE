@@ -91,4 +91,6 @@ with ai_col:
 
     else:
        st.success("System stable. No active incidents.")       
-                    
+
+time.sleep(2)
+st.rerun()                    
