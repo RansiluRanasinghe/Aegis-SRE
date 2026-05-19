@@ -62,7 +62,7 @@ with feed_col:
         st.dataframe(df.style.map(color_anomalies, subset=['Is Anomaly']), use_container_width=True, hide_index=True)
 
     else:
-        st.info("Awaiting telemetry data... Click a button above to generate traffic.")
+        st.info("Awaiting telemetry data...")
 
 with ai_col:
     st.subheader("Aegis AI Diagnostician")
