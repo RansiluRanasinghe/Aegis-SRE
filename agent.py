@@ -12,11 +12,11 @@ counter = 0
 while True:
     counter += 1
 
-    if counter % 12 == 0:
+    if counter % 20 == 0:
         print("INJECTING ANOMALY: Brute Force Attack!")
         payload = {"bytes": 120.0, "status": 401, "hour": 2, "ip_freq": 850, "is_error": 1}
 
-    elif counter % 25 == 0:
+    elif counter % 35 == 0:
         print("INJECTING ANOMALY: Cache Crash!")
         payload = {"bytes": 0.0, "status": 502, "hour": 14, "ip_freq": 12, "is_error": 1}
 
