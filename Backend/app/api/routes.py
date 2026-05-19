@@ -31,6 +31,13 @@ async def health_check():
         "context_buffer_size" : len(context_buffer)
     }
 
+@router.get("/telemetry", summary="Live Telemetry Feed")
+async def get_telemetry():
+    return {
+        "logs" : list(telemetry_history),
+        "active_incident" : system_state["active_incident"]
+    }
+
 @router.post("/analyze", response_model=AnomalyResonse, summary="Analyze Log & Trigger GenAI", description="Endpoint to analyze log features and determine if it's an anomaly.")
 async def analyze_log(log_data: LogFeatureInput):
 
