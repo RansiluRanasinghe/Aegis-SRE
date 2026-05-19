@@ -28,4 +28,11 @@ while True:
             "hour": random.randint(8, 18), 
             "ip_freq": random.randint(1, 10), 
             "is_error": 0
-        }        
+        }
+
+    try:
+        requests.post(API_URL, json=payload)
+    except Exception as e:
+        print(f"Error sending data: {e}")
+
+    time.sleep(2)                      
