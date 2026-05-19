@@ -56,7 +56,7 @@ def analyze_log(log_data: LogFeatureInput):
             "Is Anomaly": "YES" if prediction_result["is_anomaly"] else "NO"
         }
 
-        telemetry_history.insert(0, ui_log)
+        telemetry_history.append(ui_log)
 
         if not prediction_result["is_anomaly"]:
             context_buffer.append(log_dict)
