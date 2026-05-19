@@ -34,7 +34,18 @@ with st.sidebar:
         st.error("Backend: Offline")
         st.caption("Ensure Uvicorn is running on port 8000.")
 
+def fetch_telemetry():
+   
+   try:
+      res = requests.get(f"{API_BASE_URL}/telemetry", timeout=2)
+      if res.status_code == 200:
+            return res.json()
+   except requests.exceptions.ConnectionError:
+      pass
 
+   return {"logs": [], "active_incident": None}
+
+live_data = fetch_telemetry()  
 
 feed_col, ai_col = st.columns([1.5, 1])
 
