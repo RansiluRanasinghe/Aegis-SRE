@@ -51,9 +51,9 @@ feed_col, ai_col = st.columns([1.5, 1])
 
 with feed_col:
     st.subheader("Recent Telemetry Feed")
-    if st.session_state.log_history:
+    if live_data["logs"]:
 
-        df = pd.DataFrame(st.session_state.log_history)
+        df = pd.DataFrame(live_data["logs"])
 
         def color_anomalies(val):
             color = '#ff4b4b' if 'YES' in str(val) else ''
@@ -67,7 +67,7 @@ with feed_col:
 with ai_col:
     st.subheader("Aegis AI Diagnostician")
 
-    incident = st.session_state.activate_incident
+    incident = live_data["active_incident"]
 
     if incident:
 
