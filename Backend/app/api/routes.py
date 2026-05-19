@@ -16,6 +16,12 @@ llm_cache = {
 
 CACHE_TTL = 10.0
 
+telemetry_history = deque(maxlen=20)
+
+system_state = {
+    "active_incident" : None
+}
+
 @router.get("/health", summary="Health Check", description="Endpoint to check if the API is running.")
 async def health_check():
     return {
