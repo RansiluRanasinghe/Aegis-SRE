@@ -89,6 +89,39 @@ with ai_col:
           st.caption("The 1B Model's internal reasoning chain:")
           st.text(incident.get("reasoning_scrap", "No reasoning data."))
 
+        st.markdown("---")
+
+        if st.button("Approve & File GitHub Issue"):
+            with st.spinner("Filing official SRE ticket..."):
+                commit_tag = incident.get("referenced_commit", "None")
+                ticket_title = f"Aegis Incident Report: Anomaly Detected (Commit: {commit_tag})"
+                
+                ticket_body = f"""###  Aegis-SRE Automated Diagnostics
+**Culprit Commit:** {commit_tag}
+
+#### Root Cause Analysis
+{incident.get('root_cause_analysis', 'N/A')}
+
+#### Suggested Patch
+{incident.get('suggested_patch', 'N/A')}
+
+> *This issue was autonomously drafted by Aegis-SRE and approved by a human operator.*
+"""
+                
+                payload = {
+                    "title": ticket_title,
+                    "body": ticket_body
+                }
+
+                try:
+                    res = requests.post(f"{API_BASE_URL}/tickets", json=payload, timeout=10)
+                    if res.status_code == 200:
+                        issue_url = res.json().get("issue_url")
+                        st.success(f"Ticket officially filed! [View Live Issue on GitHub]({issue_url})")
+                    else:
+                        st.error(f"Failed to file ticket: {res.text}")
+                except requests.exceptions.RequestException as e:
+                    st.error("Connection error while filing ticket.")
     else:
        st.success("System stable. No active incidents.")       
 
