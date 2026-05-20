@@ -64,6 +64,7 @@ def analyze_log(log_data: LogFeatureInput, background_tasks: BackgroundTasks):
         "Status": log_dict["status"],
         "Bytes": log_dict["bytes"],
         "Freq": log_dict["ip_freq"],
+        "IP": log_dict["ip_address"],
         "ML Score": round(prediction_result["confidence_score"], 3),
         "Is Anomaly": "YES" if prediction_result["is_anomaly"] else "NO"
     }

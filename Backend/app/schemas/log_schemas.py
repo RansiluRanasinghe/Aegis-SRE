@@ -30,10 +30,13 @@ class LogFeatureInput(BaseModel):
     )
 
     is_error: int = Field(
+        ...,
         description="Binary flag: 1 if status is 4xx/5xx, else 0.",
         ge=0,
         le=1
     )
+
+    ip_address: str = Field(..., description="The source IP address of the request.")
 
     class Config:
         json_schema_extra = {
@@ -42,7 +45,8 @@ class LogFeatureInput(BaseModel):
                 "status" : 200,
                 "hour" :13,
                 "ip_freq" : 78,
-                "is_error" : 0
+                "is_error" : 0,
+                "ip_address": "192.168.1.5"
             }
         }
 
