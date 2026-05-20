@@ -18,6 +18,10 @@ else:
 def get_recent_commits(limit: int = 5) -> str:
 
     try:
+
+        import socket
+        socket.create_connection(("8.8.8.8", 53), timeout=2)
+
         repo = github_client.get_repo(GITHUB_REPO)
         commits = repo.get_commits()[:limit]
         
@@ -26,6 +30,8 @@ def get_recent_commits(limit: int = 5) -> str:
             commit_log += f"- [{commit.sha[:7]}] {commit.commit.author.name}: {commit.commit.message.split('\n')[0]}\n"
             
         return commit_log if commit_log else "No recent commits found."
+    except OSError:
+        return "Warning: GitHub API is currently unreachable (Offline Mode)."
     except Exception as e:
         return f"Error fetching commits: {str(e)}"
 
@@ -48,3 +54,5 @@ def create_incident_ticket(title: str, body: str) -> str:
         return f"GitHub API Error: {e.data.get('message', str(e))}"
     except Exception as e:
         return f"Internal Error: {str(e)}"
+    
+print(f"DEBUG: Token loaded? {GITHUB_TOKEN is not None}")    
