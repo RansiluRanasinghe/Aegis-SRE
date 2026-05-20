@@ -2,7 +2,7 @@ from pydantic import BaseModel
 from fastapi import APIRouter, HTTPException
 from collections import deque
 import time
-from app.schemas.log_schemas import LogFeatureInput, AnomalyResonse
+from app.schemas.log_schemas import LogFeatureInput, AnomalyResonse, TicketRequest
 from app.services.ml_services import ml_engine
 from app.services.llm_service import llm_engine
 from app.services.github_service import github_client, get_recent_commits, create_incident_ticket
@@ -110,4 +110,17 @@ def analyze_log(log_data: LogFeatureInput):
                 )
         
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")       
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
+
+@router.post("/tickets", summary="File an Approved SRE Ticket")
+def create_ticket(ticket_request: TicketRequest):
+
+    try:
+        issue_url = create_incident_ticket(ticket_request.title, ticket_request.body)
+
+        if issue_url.startswith("Error"):
+            raise HTTPException(status_code=500, detail=issue_url):
+
+        return {"status": "success", "issue_url": issue_url}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to create ticket: {str(e)}")          
