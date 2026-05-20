@@ -46,6 +46,10 @@ class LogFeatureInput(BaseModel):
             }
         }
 
+class TicketRequest(BaseModel):
+    title: str
+    body: str   
+
 class AnomalyResonse(BaseModel):
 
     is_anomaly: bool
