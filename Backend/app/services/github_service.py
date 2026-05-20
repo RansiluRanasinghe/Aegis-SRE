@@ -1,6 +1,10 @@
+import os
 from github import Github
 from github.GithubException import GithubException
 from app.core.config import settings
+
+GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
+GITHUB_REPO = os.getenv("GITHUB_REPO", "repo-owner/repo-name")
 
 class GitHubService:
 
