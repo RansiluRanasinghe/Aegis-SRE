@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from fastapi import APIRouter, HTTPException
 from collections import deque
+from fastapi import BackgroundTasks
 import time
 from app.schemas.log_schemas import LogFeatureInput, AnomalyResponse, TicketRequest
 from app.services.ml_services import ml_engine
@@ -24,6 +25,19 @@ system_state = {
     "active_incident" : None
 }
 
+def run_ai_diagnosis(log_dict: dict):
+    try:
+        final_diagnosis = llm_engine.diagnose(log_dict, list(context_buffer))
+
+        system_state["active_incident"] = {
+            "root_cause_analysis": final_diagnosis.get("root_cause_analysis"),
+            "suggested_patch": final_diagnosis.get("suggested_patch"),
+            "referenced_commit": final_diagnosis.get("referenced_commit"),
+            "reasoning_scrap": final_diagnosis.get("reasoning")
+        }
+    except Exception as e:
+        print(f"Background AI Task failed: {e}")
+
 @router.get("/health", summary="Health Check", description="Endpoint to check if the API is running.")
 def health_check():
     return {
@@ -41,7 +55,7 @@ def get_telemetry():
     }
 
 @router.post("/analyze", response_model=AnomalyResponse)
-def analyze_log(log_data: LogFeatureInput):
+def analyze_log(log_data: LogFeatureInput, background_tasks: BackgroundTasks):
     log_dict = log_data.model_dump()
     prediction_result = ml_engine.predict(log_dict)
     
@@ -58,6 +72,8 @@ def analyze_log(log_data: LogFeatureInput):
     if not prediction_result["is_anomaly"]:
         context_buffer.append(log_dict)
         return AnomalyResponse(is_anomaly=False, confidence_score=prediction_result["confidence_score"], message="OK")
+    
+    background_tasks.add_task(run_ai_diagnosis, log_dict)
 
     current_time = time.time()
     if current_time < llm_cache["expires_at"]:
