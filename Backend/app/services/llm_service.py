@@ -50,6 +50,8 @@ CRITICAL INSTRUCTIONS:
 2. ONLY reference a commit hash if there is a CLEAR logical link (e.g., a commit message mentioning "cache", "pipeline", "database", or "latency").
 3. If the commits appear unrelated (e.g., "feat: spaced out traffic", "chore: added agent"), you MUST set "referenced_commit" to "None". 
 4. DO NOT generate placeholder commit hashes like "[commit-hash-123456]". If you don't know the exact hash, use 'None'.
+5. Pay special attention to the 'ip_address' field. If one specific IP is generating 
+a high frequency of requests compared to others, highlight it as the source of the attack.
 
 Respond strictly in valid JSON format matching this schema:
 {{
