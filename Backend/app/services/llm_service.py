@@ -18,7 +18,7 @@ class AegisLLMService:
 
         print("Scanning live GitHub repository for culprit commits...")
 
-        live_context = get_recent_commits.get_recent_commits(limit=15)
+        live_context = get_recent_commits(limit=15)
 
         return live_context
 
