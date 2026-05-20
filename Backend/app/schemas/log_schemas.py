@@ -50,7 +50,7 @@ class TicketRequest(BaseModel):
     title: str
     body: str   
 
-class AnomalyResonse(BaseModel):
+class AnomalyResponse(BaseModel):
 
     is_anomaly: bool
     confidence_score: float

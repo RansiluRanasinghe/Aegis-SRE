@@ -2,7 +2,7 @@ from pydantic import BaseModel
 from fastapi import APIRouter, HTTPException
 from collections import deque
 import time
-from app.schemas.log_schemas import LogFeatureInput, AnomalyResonse, TicketRequest
+from app.schemas.log_schemas import LogFeatureInput, AnomalyResponse, TicketRequest
 from app.services.ml_services import ml_engine
 from app.services.llm_service import llm_engine
 from app.services.github_service import create_incident_ticket
@@ -40,9 +40,8 @@ def get_telemetry():
         "active_incident" : system_state["active_incident"]
     }
 
-@router.post("/analyze", response_model=AnomalyResonse, summary="Analyze Log & Trigger GenAI", description="Endpoint to analyze log features and determine if it's an anomaly.")
+@router.post("/analyze", response_model=AnomalyResponse)
 def analyze_log(log_data: LogFeatureInput):
-    
     log_dict = log_data.model_dump()
     prediction_result = ml_engine.predict(log_dict)
     
@@ -58,7 +57,7 @@ def analyze_log(log_data: LogFeatureInput):
 
     if not prediction_result["is_anomaly"]:
         context_buffer.append(log_dict)
-        return AnomalyResonse(is_anomaly=False, confidence_score=prediction_result["confidence_score"], message="OK")
+        return AnomalyResponse(is_anomaly=False, confidence_score=prediction_result["confidence_score"], message="OK")
 
     current_time = time.time()
     if current_time < llm_cache["expires_at"]:
@@ -78,11 +77,14 @@ def analyze_log(log_data: LogFeatureInput):
             print(f"GenAI Failed: {e}")
             final_diagnosis = {"root_cause_analysis": "AI Timeout", "suggested_patch": "Manual Check", "referenced_commit": "None", "reasoning": "Error"}
 
-    return AnomalyResonse(
+    return AnomalyResponse(
         is_anomaly=True,
         confidence_score=prediction_result["confidence_score"],
         message="CRITICAL",
-        **final_diagnosis
+        root_cause_analysis=final_diagnosis.get("root_cause_analysis"),
+        suggested_patch=final_diagnosis.get("suggested_patch"),
+        referenced_commit=final_diagnosis.get("referenced_commit"),
+        reasoning_scrap=final_diagnosis.get("reasoning_scrap")
     )
 
 @router.post("/tickets", summary="File an Approved SRE Ticket")
