@@ -46,17 +46,17 @@ class AegisLLMService:
 You will be provided with an anomaly log and the most recent GitHub commits.
 
 CRITICAL INSTRUCTIONS:
-1. Evaluate the anomaly symptoms.
-2. Review the GitHub commits to see if they caused the issue.
-3. DO NOT FORCE A MATCH. If the recent commits (e.g., UI updates, README changes) are clearly unrelated to a severe backend anomaly (like a Cache Crash or Brute Force), you MUST set "referenced_commit" to "None".
-4. If no commit is to blame, provide a general, high-level SRE diagnosis and suggested patch for the anomaly type.
+1. Evaluate the anomaly symptoms against the provided GitHub commits.
+2. ONLY reference a commit hash if there is a CLEAR logical link (e.g., a commit message mentioning "cache", "pipeline", "database", or "latency").
+3. If the commits appear unrelated (e.g., "feat: spaced out traffic", "chore: added agent"), you MUST set "referenced_commit" to "None". 
+4. DO NOT generate placeholder commit hashes like "[commit-hash-123456]". If you don't know the exact hash, use 'None'.
 
 Respond strictly in valid JSON format matching this schema:
 {{
-  "reasoning": "Brief internal thought process",
+  "reasoning": "Explicitly explain why you chose a specific commit or why you chose 'None'.",
   "root_cause_analysis": "Detailed explanation of the failure.",
   "suggested_patch": "Actionable fix or mitigation strategy.",
-  "referenced_commit": "The exact commit hash (e.g., [4193d53]) OR 'None' if no commit is related."
+  "referenced_commit": "The commit hash (e.g., [9460e88]) OR 'None'."
 }}
 """
         
