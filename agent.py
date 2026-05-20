@@ -12,13 +12,15 @@ counter = 0
 while True:
     counter += 1
 
+    ip_address = f"192.168.1.{random.randint(1, 254)}"
+
     if counter % 40 == 0:
         print(f"{counter}: INJECTING ANOMALY: Brute Force Attack!")
-        payload = {"bytes": 120.0, "status": 401, "hour": 2, "ip_freq": 850, "is_error": 1}
+        payload = {"bytes": 120.0, "status": 401, "hour": 2, "ip_freq": 850, "is_error": 1, "ip_address": "10.0.0.5"}
 
     elif counter % 75 == 0:
         print(f"{counter}: INJECTING ANOMALY: Cache Crash!")
-        payload = {"bytes": 0.0, "status": 502, "hour": 14, "ip_freq": 12, "is_error": 1}
+        payload = {"bytes": 0.0, "status": 502, "hour": 14, "ip_freq": 12, "is_error": 1, "ip_address": ip_address}
 
     else:
         print(f"{counter}: Sending normal web traffic...")
@@ -27,7 +29,8 @@ while True:
             "status": 200, 
             "hour": random.randint(8, 18), 
             "ip_freq": random.randint(1, 10), 
-            "is_error": 0
+            "is_error": 0,
+            "ip_address": ip_address
         }
 
     try:
