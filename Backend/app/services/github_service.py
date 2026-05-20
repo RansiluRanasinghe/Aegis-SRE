@@ -4,7 +4,7 @@ from github.GithubException import GithubException
 from app.core.config import settings
 
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
-GITHUB_REPO = os.getenv("GITHUB_REPO", "repo-owner/repo-name")
+GITHUB_REPO = os.getenv("GITHUB_REPO", "RansiluRanasinghe/Aegis-SRE")
 
 if GITHUB_TOKEN:
     gitub_client = Github(GITHUB_TOKEN)
