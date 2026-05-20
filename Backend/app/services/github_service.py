@@ -6,6 +6,13 @@ from app.core.config import settings
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
 GITHUB_REPO = os.getenv("GITHUB_REPO", "repo-owner/repo-name")
 
+if GITHUB_TOKEN:
+    gitub_client = Github(GITHUB_TOKEN)
+    print("GitHub Engine initialized. Authenticated Mode.")
+else:
+    gitub_client = Github()
+    print("GitHub Engine initialized. WARNING: Unauthenticated mode (Read-only).")    
+
 class GitHubService:
 
     def __init__(self):
