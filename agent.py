@@ -34,7 +34,7 @@ while True:
         }
 
     try:
-        response = requests.post(API_URL, json=payload, timeout=5)
+        response = requests.post(API_URL, json=payload, timeout=10.0)
         response.raise_for_status()
     except Exception as e:
         print(f"Server busy/unresponsive, retrying in 5s... ({type(e).__name__})")
