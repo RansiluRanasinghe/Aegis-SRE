@@ -49,5 +49,25 @@ class GitHubService:
             return f"Error loading repository context: {error_msg}"
         except Exception as e:
             return f"System Error reading GitHub: {str(e)}"
+        
+    def create_incident_issue(title: str, body: str) -> str:
+
+        if not GITHUB_TOKEN:
+            return "Error: GITHUB_TOKEN is missing. Aegis cannot write to the repository."
+
+        try:
+            repo = gitub_client.get_repo(GITHUB_REPO)
+
+            issue = repo.create_issue(
+                title=title,
+                body=body,
+                labels=["bug", "aegis-sre-auto", "critical"]
+            )
+
+            return issue.html_url
+        except GithubException as e:
+            return f"GitHub API Error: {e.data.get('message', str(e))}"
+        except Exception as e:
+            return f"Internal Error: {str(e)}"  
 
 gitub_engine = GitHubService()                     
