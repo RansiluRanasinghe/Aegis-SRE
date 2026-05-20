@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 from app.core.config import settings
 from app.core.rule_engine import evaluate_anomaly
-from app.services.github_service import gitub_engine
+from app.services.github_service import get_recent_commits
 
 class AegisLLMService:
 
@@ -18,7 +18,7 @@ class AegisLLMService:
 
         print("Scanning live GitHub repository for culprit commits...")
 
-        live_context = gitub_engine.get_recent_commits(limit=15)
+        live_context = get_recent_commits.get_recent_commits(limit=15)
 
         return live_context
 

@@ -5,7 +5,7 @@ import time
 from app.schemas.log_schemas import LogFeatureInput, AnomalyResonse, TicketRequest
 from app.services.ml_services import ml_engine
 from app.services.llm_service import llm_engine
-from app.services.github_service import github_client, get_recent_commits, create_incident_ticket
+from app.services.github_service import create_incident_ticket
 
 router = APIRouter()
 
