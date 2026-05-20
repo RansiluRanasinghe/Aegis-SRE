@@ -119,7 +119,7 @@ def create_ticket(ticket_request: TicketRequest):
         issue_url = create_incident_ticket(ticket_request.title, ticket_request.body)
 
         if issue_url.startswith("Error"):
-            raise HTTPException(status_code=500, detail=issue_url):
+            raise HTTPException(status_code=500, detail=issue_url)
 
         return {"status": "success", "issue_url": issue_url}
     except Exception as e:
