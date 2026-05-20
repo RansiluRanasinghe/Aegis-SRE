@@ -42,30 +42,22 @@ class AegisLLMService:
 
         print(f"\n--- DEBUG: LOADED CONTEXT ---\n{system_context}\n-----------------------------\n")
 
-        prompt = f"""You are Aegis-SRE, an autonomous AI Diagnostician. 
-Determine the root cause of this anomaly by comparing the system logs to the architectural context and recent Git commits.
+        prompt = f"""You are Aegis-Brain, an elite Site Reliability Engineering AI.
+You will be provided with an anomaly log and the most recent GitHub commits.
 
-[ARCHITECTURAL CONTEXT & RECENT COMMITS]
-{system_context}
+CRITICAL INSTRUCTIONS:
+1. Evaluate the anomaly symptoms.
+2. Review the GitHub commits to see if they caused the issue.
+3. DO NOT FORCE A MATCH. If the recent commits (e.g., UI updates, README changes) are clearly unrelated to a severe backend anomaly (like a Cache Crash or Brute Force), you MUST set "referenced_commit" to "None".
+4. If no commit is to blame, provide a general, high-level SRE diagnosis and suggested patch for the anomaly type.
 
-[RECENT TRAFFIC HISTORY]
-{history_str}
-
-[ANOMALY TRIGGER]
-Status Code: {status} | Payload Size: {bytes_size} bytes | IP Frequency: {ip_freq}
-
-[RULE ENGINE HINT]
-{system_diagnosis}
-
-Based purely on the context above, write a Root Cause Analysis (RCA) explaining what caused the anomaly, and a Suggested Patch to fix it.
-
-You must respond ONLY with a valid JSON object using this exact structure. You MUST generate the "reasoning" key first:
-        {{
-          "reasoning": "Think step-by-step. 1) What is the symptom? 2) Which specific commit explains this symptom? 3) How do we fix it?",
-          "root_cause_analysis": "Your formal explanation goes here.",
-          "suggested_patch": "Your code or configuration patch goes here.",
-          "referenced_commit": "The exact 7-character commit hash responsible, or 'None'"
-        }}
+Respond strictly in valid JSON format matching this schema:
+{{
+  "reasoning": "Brief internal thought process",
+  "root_cause_analysis": "Detailed explanation of the failure.",
+  "suggested_patch": "Actionable fix or mitigation strategy.",
+  "referenced_commit": "The exact commit hash (e.g., [4193d53]) OR 'None' if no commit is related."
+}}
 """
         
         payload = {
